@@ -19,6 +19,8 @@ const App = () => {
   const [dragged, setDragged] = useState(null);
   const [over, setOver] = useState(null);
 
+  useEffect(() => { }, [colors]);
+
   const dragStart = (e) => {
     setDragged(e.currentTarget);
     e.dataTransfer.effectAllowed = 'move';
@@ -30,14 +32,12 @@ const App = () => {
     dragged.parentNode.removeChild(placeholder);
 
     // update state
-    var data = colors;
+    var data = [...colors];
     var from = Number(dragged.dataset.id);
     var to = Number(over.dataset.id);
 
     if (from < to) to--;
-    console.log(data);
     data.splice(to, 0, data.splice(from, 1)[0]);
-    console.log(data);
     setColors(data);
   }
 
