@@ -18,13 +18,14 @@
 .list_item {
   border: 1px solid black;
   padding: 5px 10px;
+
+  transition: all 200ms;
 }
 
 .placeholder {
-  border: 1px solid;
-  padding: 5px 10px;
+  height: 30px;
 }
 
-.placeholder:before {
-  content: "@";
+.over {
+  transform: scale(1.1, 1.1);
 }

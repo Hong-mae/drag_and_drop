@@ -17,43 +17,56 @@ placeholder.className = "placeholder";
 const App = () => {
   const [colors, setColors] = useState(_colors);
   const [dragged, setDragged] = useState(null);
-  const [over, setOver] = useState(null);
 
   useEffect(() => { }, [colors]);
 
-  const dragStart = (e) => {
-    setDragged(e.currentTarget);
+  const onDragStart = (e) => {
+    setDragged(e.target);
+
+    e.target.style.opacity = 0.4;
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', dragged);
+    e.dataTransfer.setData('text/html', e.target);
   }
 
-  const dragEnd = (e) => {
-    dragged.style.display = 'block';
-    dragged.parentNode.removeChild(placeholder);
-
-    // update state
-    var data = [...colors];
-    var from = Number(dragged.dataset.id);
-    var to = Number(over.dataset.id);
-
-    if (from < to) to--;
-    data.splice(to, 0, data.splice(from, 1)[0]);
-    setColors(data);
+  const onDragEnter = (e) => {
+    e.target.classList.add("over");
   }
 
-  const dragOver = (e) => {
+  const onDragLeave = (e) => {
+    e.stopPropagation();
+    e.target.classList.remove("over");
+  }
+
+  const onDragOver = (e) => {
     e.preventDefault();
-    dragged.style.display = "none";
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+  }
 
-    if (e.target.className === 'placeholder') return;
+  const onDrop = (e) => {
+    if (dragged !== e.target) {
+      let data = [...colors];
+      let from = Number(dragged.dataset.id);
+      let to = Number(e.target.dataset.id);
 
-    setOver(e.target);
-    e.target.parentNode.insertBefore(placeholder, e.target);
+      data[from] = data.splice(to, 1, data[from])[0];
+
+      setColors(data);
+    }
+    return false;
+  }
+
+  const onDragEnd = (e) => {
+    const list_item = document.getElementsByClassName("list_item");
+    [].forEach.call(list_item, item => {
+      item.classList.remove('over');
+    });
+    e.target.style.opacity = 1;
   }
 
   return (
     <div className="App">
-      <ul className='list' onDragOver={dragOver}>
+      <ul className='list'>
         {
           colors.map((color, i) => {
             return (
@@ -62,8 +75,12 @@ const App = () => {
                 key={i}
                 className="list_item"
                 draggable
-                onDragStart={dragStart}
-                onDragEnd={dragEnd}
+                onDragStart={onDragStart}
+                onDragEnter={onDragEnter}
+                onDragLeave={onDragLeave}
+                onDragOver={onDragOver}
+                onDrop={onDrop}
+                onDragEnd={onDragEnd}
               >{color}</li>
             )
           })
