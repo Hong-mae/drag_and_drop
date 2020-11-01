@@ -1,14 +1,36 @@
 import { useState, useEffect } from 'react';
-import './App.css';
+
+import styled from 'styled-components';
 
 const _colors = [
-  'Red',
-  'Orange',
-  'Yellow',
-  'Green',
-  'Blue',
-  'Indigo',
-  'Violet'
+  {
+    name: 'Red',
+    textColor: "white",
+  },
+  {
+    name: 'Orange',
+    textColor: "black",
+  },
+  {
+    name: 'Yellow',
+    textColor: "black",
+  },
+  {
+    name: 'Green',
+    textColor: "white",
+  },
+  {
+    name: 'Blue',
+    textColor: "white",
+  },
+  {
+    name: 'Indigo',
+    textColor: "white",
+  },
+  {
+    name: 'Violet',
+    textColor: "white",
+  }
 ]
 
 var placeholder = document.createElement("li");
@@ -65,12 +87,12 @@ const App = () => {
   }
 
   return (
-    <div className="App">
-      <ul className='list'>
+    <Container className="App">
+      <List className='list'>
         {
           colors.map((color, i) => {
             return (
-              <li
+              <ListItem
                 data-id={i}
                 key={i}
                 className="list_item"
@@ -81,13 +103,41 @@ const App = () => {
                 onDragOver={onDragOver}
                 onDrop={onDrop}
                 onDragEnd={onDragEnd}
-              >{color}</li>
+
+                color_name={color.name}
+                text_color={color.textColor}
+              >{color.name}</ListItem>
             )
           })
         }
-      </ul>
-    </div>
+      </List>
+    </Container>
   );
 }
+
+const Container = styled.div`
+  background: lightgray;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const List = styled.ul`
+  background: transparent;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 500px;
+`;
+
+const ListItem = styled.li`
+  border: 1px solid ${props => props.color_name};
+  padding: 5px 10px;
+  transition: all 200ms;
+  background: ${props => props.color_name};
+  color: ${props => props.text_color};
+`;
 
 export default App;
