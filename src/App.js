@@ -36,6 +36,11 @@ const _colors = [
 var placeholder = document.createElement("li");
 placeholder.className = "placeholder";
 
+const _data = {
+  target: null,
+  updateList: []
+}
+
 const App = () => {
   const [colors, setColors] = useState(_colors);
   const [dragged, setDragged] = useState(null);
