@@ -1,148 +1,212 @@
-import { useState, useEffect } from 'react';
-
+import React, { useState, useEffect } from 'react'
+import {
+  FaLinkedin,
+  FaTwitterSquare,
+  FaFacebookSquare,
+  FaInstagramSquare,
+  FaGithubSquare,
+  FaLine,
+} from 'react-icons/fa'
 import styled from 'styled-components';
 
-const _colors = [
+const initialLists = [
   {
-    name: 'Red',
-    textColor: "white",
+    title: "LinkedIn",
+    icon: <FaLinkedin size="2em" />
   },
   {
-    name: 'Orange',
-    textColor: "black",
+    title: "Twitter",
+    icon: <FaTwitterSquare size="2em" />
   },
   {
-    name: 'Yellow',
-    textColor: "black",
+    title: "Facebook",
+    icon: <FaFacebookSquare size="2em" />
   },
   {
-    name: 'Green',
-    textColor: "white",
+    title: "Instagram",
+    icon: <FaInstagramSquare size="2em" />
   },
   {
-    name: 'Blue',
-    textColor: "white",
+    title: "Github",
+    icon: <FaGithubSquare size="2em" />
   },
   {
-    name: 'Indigo',
-    textColor: "white",
+    title: "Line",
+    icon: <FaLine size="2em" />
   },
-  {
-    name: 'Violet',
-    textColor: "white",
-  }
 ]
 
-var placeholder = document.createElement("li");
-placeholder.className = "placeholder";
-
-const _data = {
+const initialDragData = {
   target: null,
-  updateList: []
+  index: -1,
+  move_down: [],
+  move_up: [],
+  updateLists: []
 }
 
 const App = () => {
-  const [colors, setColors] = useState(_colors);
-  const [dragged, setDragged] = useState(null);
+  const [lists, setLists] = useState(initialLists);
+  const [dragData, setDragData] = useState(initialDragData);
+  const [isDragged, setIsDragged] = useState(false)
 
-  useEffect(() => { }, [colors]);
+  // useEffect(() => { }, [lists])
 
-  const onDragStart = (e) => {
-    setDragged(e.target);
-
-    e.target.style.opacity = 0.4;
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', e.target);
-  }
-
-  const onDragEnter = (e) => {
-    e.target.classList.add("over");
-  }
-
-  const onDragLeave = (e) => {
-    e.stopPropagation();
-    e.target.classList.remove("over");
-  }
-
-  const onDragOver = (e) => {
+  const _onDragOver = (e) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
     return false;
   }
-
-  const onDrop = (e) => {
-    if (dragged !== e.target) {
-      let data = [...colors];
-      let from = Number(dragged.dataset.id);
-      let to = Number(e.target.dataset.id);
-
-      data[from] = data.splice(to, 1, data[from])[0];
-
-      setColors(data);
-    }
-    return false;
-  }
-
-  const onDragEnd = (e) => {
-    const list_item = document.getElementsByClassName("list_item");
-    [].forEach.call(list_item, item => {
-      item.classList.remove('over');
+  const _onDragStart = (e) => {
+    setIsDragged(true);
+    setDragData({
+      ...dragData,
+      target: e.target,
+      index: Number(e.target.dataset.index),
+      updateLists: [...lists]
     });
-    e.target.style.opacity = 1;
+  }
+  const _onDragEnter = (e) => {
+    const _dragged = Number(dragData.target.dataset.index);
+    const _index = Number(dragData.index);
+    const _target = Number(e.target.dataset.index);
+    let move_down = [...dragData.move_down];
+    let move_up = [...dragData.move_up];
+
+    let data = [...dragData.updateLists];
+    data[_index] = data.splice(_target, 1, data[_index])[0];
+
+    if (_dragged > _target) {
+      move_down.includes(_target) ? move_down.pop() : move_down.push(_target);
+    } else if (_dragged < _target) {
+      move_up.includes(_target) ? move_up.pop() : move_up.push(_target);
+    } else {
+      move_down = [];
+      move_up = [];
+    }
+
+    setDragData({
+      ...dragData,
+      updateLists: data,
+      index: _target,
+      move_up,
+      move_down
+    })
+  }
+  const _onDragLeave = (e) => {
+    if (e.target === dragData.target) {
+      e.target.style.visibility = "hidden";
+    }
+  }
+  const _onDragEnd = (e) => {
+    setIsDragged(false);
+    setLists([
+      ...dragData.updateLists
+    ]);
+
+    setDragData({
+      ...dragData,
+      move_down: [],
+      move_up: [],
+      updateLists: [],
+    });
+
+    e.target.style.visibility = "visible";
   }
 
   return (
-    <Container className="App">
+    <Container className='container'>
       <List className='list'>
         {
-          colors.map((color, i) => {
+          lists.map((e, i) => {
+            let default_class = "";
+
+            dragData.move_down.includes(i) && (
+              default_class = "move_down"
+            );
+
+            dragData.move_up.includes(i) && (
+              default_class = "move_up"
+            );
+
             return (
               <ListItem
-                data-id={i}
                 key={i}
-                className="list_item"
+                data-index={i}
                 draggable
-                onDragStart={onDragStart}
-                onDragEnter={onDragEnter}
-                onDragLeave={onDragLeave}
-                onDragOver={onDragOver}
-                onDrop={onDrop}
-                onDragEnd={onDragEnd}
 
-                color_name={color.name}
-                text_color={color.textColor}
-              >{color.name}</ListItem>
+                onDragOver={_onDragOver}
+                onDragStart={_onDragStart}
+                onDragEnter={_onDragEnter}
+                onDragLeave={_onDragLeave}
+                onDragEnd={_onDragEnd}
+
+                className={default_class}
+                isDragged={isDragged}
+              >
+                <i>{e.icon}</i>
+                <p>{e.title}</p>
+              </ListItem>
             )
           })
         }
       </List>
     </Container>
-  );
+  )
 }
 
 const Container = styled.div`
-  background: lightgray;
-  width: 100vw;
-  height: 100vh;
+  background-color: lightgray;
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh;
+
+  * {
+    padding: 0;
+    margin: 0;
+  }
 `;
 
 const List = styled.ul`
-  background: transparent;
+  width: 300px;
   list-style: none;
-  padding: 0;
-  margin: 0;
-  width: 500px;
+  background-color: white;
+  border-radius: 5px;
+  display: flex;
+
+  flex-direction: column;
 `;
 
 const ListItem = styled.li`
-  border: 1px solid ${props => props.color_name};
-  padding: 5px 10px;
-  transition: all 200ms;
-  background: ${props => props.color_name};
-  color: ${props => props.text_color};
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 8px;
+  ${props => props.isDragged && 'transition: transform 200ms ease 0s'};
+
+  i {
+    flex: 1;
+  }
+
+  p {
+    flex: 6;
+  }
+
+  &.move_up {
+    transform: translate(0, -65px);
+    z-index: 1;
+  }
+
+  &.move_down {
+    transform: translate(0, 65px);
+    z-index: 1;
+  }
+
+
+  & > * {
+    pointer-events: none;
+  }
+
 `;
 
-export default App;
+export default App
