@@ -40,12 +40,12 @@
             }
 
             &.move_up {
-                transform: translate(0, -65px);
+                // transform: translate(0, -65px);
                 z-index: 1;
             }
 
             &.move_down {
-                transform: translate(0, 65px);
+                // transform: translate(0, 65px);
                 z-index: 1;
             }
         }

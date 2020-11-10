@@ -28,4 +28,6 @@
 
 .over {
   transform: scale(1.1, 1.1);
+  user-select: none;
+  touch-action: none;
 }

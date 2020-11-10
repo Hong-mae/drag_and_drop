@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   FaLinkedin,
   FaTwitterSquare,
@@ -52,8 +52,9 @@ const App = () => {
   // useEffect(() => { }, [lists])
 
   const _onDragOver = (e) => {
+    e.stopPropagation();
     e.preventDefault();
-    return false;
+    return true
   }
   const _onDragStart = (e) => {
     setIsDragged(true);
@@ -63,6 +64,9 @@ const App = () => {
       index: Number(e.target.dataset.index),
       updateLists: [...lists]
     });
+
+    e.dataTransfer.setData('text/html', '');
+    e.dataTransfer.effectAllowed = "move";
   }
   const _onDragEnter = (e) => {
     const _dragged = Number(dragData.target.dataset.index);
@@ -110,11 +114,17 @@ const App = () => {
     });
 
     e.target.style.visibility = "visible";
+    e.dataTransfer.dropEffect = 'move';
+  }
+
+  const _onDrop = (e) => {
+
   }
 
   return (
     <Container className='container'>
-      <List className='list'>
+      <List className='list'
+        onDragOver={_onDragOver} onDrop={_onDrop}>
         {
           lists.map((e, i) => {
             let default_class = "";
@@ -133,7 +143,6 @@ const App = () => {
                 data-index={i}
                 draggable
 
-                onDragOver={_onDragOver}
                 onDragStart={_onDragStart}
                 onDragEnter={_onDragEnter}
                 onDragLeave={_onDragLeave}
@@ -183,6 +192,9 @@ const ListItem = styled.li`
   align-items: center;
   padding: 15px 8px;
   ${props => props.isDragged && 'transition: transform 200ms ease 0s'};
+  user-select: none;
+  touch-action: none;
+  cursor: grab;
 
   i {
     flex: 1;
